@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -94,8 +94,8 @@ namespace sqlpp
 			}
 
 			bool is_null() const
-			{ 
-				return _is_null; 
+			{
+				return _is_null;
 			}
 
 			_cpp_value_type value() const
@@ -189,10 +189,10 @@ namespace sqlpp
 		bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
 
 		bool is_null() const
-		{ 
+		{
 			if (not _is_valid)
 				throw exception("accessing is_null in non-existing row");
-			return _value_ptr == nullptr; 
+			return _value_ptr == nullptr;
 		}
 
 		bool _is_trivial() const
@@ -205,21 +205,8 @@ namespace sqlpp
 
 		_cpp_value_type value() const
 		{
-			if (not _is_valid)
-				throw exception("accessing value in non-existing row");
-
-			if (not _value_ptr)
-			{
-				if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
-				{
-					throw exception("accessing value of NULL field");
-				}
-				else
-				{
-					return "";
-				}
-			}
-			return std::string(_value_ptr, _value_ptr + _len);
+			const char *val = data();
+			return _cpp_value_type( val, val + _len);
 		}
 
 		template<typename Target>
@@ -228,6 +215,30 @@ namespace sqlpp
 				target._bind_text_result(i, &_value_ptr, &_len);
 			}
 
+		const char *data() const
+		{
+            if (not _is_valid)
+                throw exception("accessing value in non-existing row");
+
+            if (not _value_ptr)
+            {
+                if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+                {
+                    throw exception("accessing value of NULL field");
+                }
+                else
+                {
+                    return "";
+                }
+            }
+
+		    return _value_ptr;
+		}
+
+		size_t size() const
+		{
+		    return _len;
+		}
 	private:
 		bool _is_valid;
 		const char* _value_ptr;
