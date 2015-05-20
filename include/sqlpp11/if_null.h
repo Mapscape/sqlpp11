@@ -34,17 +34,19 @@
 #ifndef SQLPP_IF_NULL_H_
 #define SQLPP_IF_NULL_H_
 
-#include <basic_expression_operators.h>
-#include <detail/type_vector.h>
-#include <serializer.h>
-#include <type_traits.h>
-#include <value_type_fwd.h>
-#include <wrap_operand_fwd.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/detail/type_vector.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/value_type_fwd.h>
+#include <sqlpp11/wrap_operand_fwd.h>
 
 namespace sqlpp
 {
     template<typename OperandLhs, typename OperandRhs>
-    struct if_null_t: public expression_operators<if_null_t<OperandLhs, OperandRhs>, value_type_of<OperandRhs>>, public alias_operators<if_null_t<OperandLhs, OperandRhs>>
+    struct if_null_t:
+            public expression_operators<if_null_t<OperandLhs, OperandRhs>, value_type_of<OperandRhs>>,
+            public alias_operators<if_null_t<OperandLhs, OperandRhs>>
     {
         using _traits = make_traits<value_type_of<OperandRhs>, tag::is_expression, tag::is_selectable>;
         using _nodes = detail::type_vector< OperandLhs, OperandRhs>;
@@ -69,7 +71,7 @@ namespace sqlpp
     template<typename Context, typename OperandLhs, typename OperandRhs>
     struct serializer_t<Context, if_null_t<OperandLhs, OperandRhs>>
     {
-        using _serialize_check = serialize_check_of<Context, OperandLhs>;
+        using _serialize_check = serialize_check_of<Context, OperandLhs, OperandRhs>;
         using T = if_null_t<OperandLhs, OperandRhs>;
 
         static Context& _(const T& t, Context& context)
