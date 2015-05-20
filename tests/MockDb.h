@@ -1,25 +1,25 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification, 
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *  * Redistributions of source code must retain the above copyright notice, 
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -35,7 +35,7 @@
 template<bool enforceNullResultTreatment>
 struct MockDbT: public sqlpp::connection
 {
-	using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t, 
+	using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t,
 						::sqlpp::tag_if<::sqlpp::tag::enforce_null_result_treatment, enforceNullResultTreatment>
 					>;
 
@@ -44,7 +44,7 @@ struct MockDbT: public sqlpp::connection
 		std::ostringstream _os;
 
 		_serializer_context_t() = default;
-		_serializer_context_t(const _serializer_context_t& rhs)	
+		_serializer_context_t(const _serializer_context_t& rhs)
 		{
 			_os << rhs._os.str();
 		}
@@ -127,12 +127,12 @@ struct MockDbT: public sqlpp::connection
 			return _run(t, _ok{});
 		}
 
-	size_t execute(const std::string& command)
+	size_t execute(const std::string& )
 	{
 		return 0;
 	}
 
-	template<typename Statement, 
+	template<typename Statement,
 					typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
 		size_t execute(const Statement& x)
 		{
@@ -220,7 +220,7 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename PreparedExecute>
-		size_t run_prepared_execute(const PreparedExecute& x)
+		size_t run_prepared_execute(const PreparedExecute& )
 		{
 			return 0;
 		}
@@ -241,7 +241,7 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename PreparedSelect>
-		result_t run_prepared_select(PreparedSelect& x)
+		result_t run_prepared_select(PreparedSelect& )
 		{
 			return {};
 		}
