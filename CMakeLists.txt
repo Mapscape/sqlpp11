@@ -25,8 +25,6 @@
 cmake_minimum_required(VERSION 2.6)
 project (sqlpp11)
 
-# Mapscape specific alterations
-IF (0)
 # Cygwin does not define WIN32 and warn if not use with this flag
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
 
@@ -43,8 +41,10 @@ set(CMAKE_CXX_FLAGS "-Wconversion -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers "${include_dir}/*.h")
 include_directories("${include_dir}")
-add_subdirectory(tests)
-add_subdirectory(test_constraints)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
+add_subdirectory(${PROJECT_SOURCE_DIR}/test_constraints)
+# Mapscape specific alterations
+IF (0)
 add_subdirectory(examples)
 
 ENDIF(0)

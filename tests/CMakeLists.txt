@@ -1,9 +1,9 @@
 
 macro (build_and_run arg)
 	# Add headers to sources to enable file browsing in IDEs
-	include_directories("${CMAKE_BINARY_DIR}/tests")
+	include_directories("${CMAKE_BINARY_DIR}")
 	add_executable("${arg}" "${arg}.cpp" ${sqlpp_headers} "${CMAKE_CURRENT_LIST_DIR}/Sample.h")
-	add_test("${arg}" "${CMAKE_BINARY_DIR}/tests/${arg}")
+	add_test("${arg}" "${CMAKE_BINARY_DIR}/${arg}")
 endmacro ()
 
 build_and_run(BooleanExpressionTest)
