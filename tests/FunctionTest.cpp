@@ -1,25 +1,25 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification, 
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *  * Redistributions of source code must retain the above copyright notice, 
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -29,6 +29,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/case.h>
 
 #include <iostream>
 
@@ -37,14 +38,14 @@ SQLPP_ALIAS_PROVIDER(kaesekuchen)
 int main()
 {
 	MockDb db = {};
-	test::TabFoo f; 
+	test::TabFoo f;
 	test::TabBar t;
 
 	//f.omega + 4 *= "";
 
 	// MEMBER FUNCTIONS
 	// ----------------
-	
+
 	// Test in
 	{
 		using TI = decltype(t.alpha.in(1, 2, 3));
@@ -155,6 +156,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+
 	// Test is_not_null
 	{
 		using TI = decltype(t.alpha.is_not_null());
@@ -182,7 +184,7 @@ int main()
 
 	// SUB_SELECT_FUNCTIONS
 	// --------------------
-	
+
 	// Test exists
 	{
 		using TI = decltype(exists(select(t.alpha).from(t)));
@@ -202,7 +204,7 @@ int main()
 	{
 		using S = decltype(select(t.alpha).from(t));
 		static_assert(sqlpp::is_numeric_t<S>::value, "type requirement");
-		
+
 		using TI = decltype(any(select(t.alpha).from(t)));
 		using TT = decltype(any(select(t.beta).from(t)));
 		using TF = decltype(any(select(f.omega).from(f)));
@@ -350,6 +352,30 @@ int main()
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_selectable_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
+	}
+
+	// test case
+	{
+	    using TI = decltype(sqlpp::case_( t.alpha).when( 1, 3));
+	    static_assert( sqlpp::is_selectable_t<TI>::value, "type requirement");
+
+	    auto val1 = sqlpp::case_( ).when( 1,2).else_(3);
+        auto val2 = sqlpp::case_( 1).when( 1,2);
+        auto val3 = sqlpp::case_( 2).when(1,2).else_(3);
+        auto val4 = sqlpp::case_().when(1,2);
+        auto q1 = select(val1).from(t).where(true);
+        auto q2 = select(val2).from(t).where(true);
+        auto q3 = select(val3).from(t).where(true);
+        auto q4 = select(val4).from(t).where(true);
+        (void)q1;
+        (void)q2;
+        (void)q3;
+        (void)q4;
+        db( q1);
+        db( q2);
+        db( q3);
+        db( q4);
+
 	}
 
 	// test flatten
