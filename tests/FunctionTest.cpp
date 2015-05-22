@@ -35,6 +35,17 @@
 
 SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
+template< typename ColumnExpression>
+void TestAsColumn( ColumnExpression e)
+{
+    MockDb db = {};
+    test::TabBar t;
+
+    auto query = select( e).from(t).where( true);
+
+    db(query);
+}
+
 int main()
 {
 	MockDb db = {};
@@ -202,7 +213,7 @@ int main()
 
 	// Test any
 	{
-		using S = decltype(select(t.alpha).from(t));
+		using S = decltype(sqlpp::select(t.alpha).from(t));
 		static_assert(sqlpp::is_numeric_t<S>::value, "type requirement");
 
 		using TI = decltype(any(select(t.alpha).from(t)));
@@ -264,6 +275,8 @@ int main()
 		static_assert(sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
+
+		TestAsColumn( t.alpha);
 	}
 
 	// Test count
@@ -358,24 +371,12 @@ int main()
 	{
 	    using TI = decltype(sqlpp::case_( t.alpha).when( 1, 3));
 	    static_assert( sqlpp::is_selectable_t<TI>::value, "type requirement");
+        static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 
-	    auto val1 = sqlpp::case_( ).when( 1,2).else_(3);
-        auto val2 = sqlpp::case_( 1).when( 1,2);
-        auto val3 = sqlpp::case_( 2).when(1,2).else_(3);
-        auto val4 = sqlpp::case_().when(1,2);
-        auto q1 = select(val1).from(t).where(true);
-        auto q2 = select(val2).from(t).where(true);
-        auto q3 = select(val3).from(t).where(true);
-        auto q4 = select(val4).from(t).where(true);
-        (void)q1;
-        (void)q2;
-        (void)q3;
-        (void)q4;
-        db( q1);
-        db( q2);
-        db( q3);
-        db( q4);
-
+	    TestAsColumn( sqlpp::case_( )   .when( 1,2).else_(3));
+	    TestAsColumn( sqlpp::case_( 1)  .when( 1,2)         );
+	    TestAsColumn( sqlpp::case_( 2)  .when( 1,2).else_(3));
+	    TestAsColumn( sqlpp::case_()    .when( 1,2)         );
 	}
 
 	// test flatten
