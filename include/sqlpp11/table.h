@@ -51,6 +51,7 @@ namespace sqlpp
 
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
 		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
+		using _primary_key_columns     = typename detail::make_type_set_if<is_primary_key_t, column_t<Table, ColumnSpec>...>::type;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 		template<typename AliasProvider, typename T>
 			using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
@@ -78,7 +79,7 @@ namespace sqlpp
 		template<typename T>
 			join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename T>
