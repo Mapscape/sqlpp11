@@ -33,6 +33,7 @@
 #include <sqlpp11/concat.h>
 #include <sqlpp11/like.h>
 #include <sqlpp11/result_field.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -42,6 +43,9 @@ namespace sqlpp
 		using _traits = make_traits<text, tag::is_value_type>;
 		using _tag = tag::is_text;
 		using _cpp_value_type = std::string;
+
+        static constexpr const char _db_name[] =  "TEXT";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_db_name), _db_name>;
 
 		template<typename T>
 			using _is_valid_operand = is_text_t<T>;

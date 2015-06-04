@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <sqlpp11/schema.h>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
@@ -168,6 +169,14 @@ struct MockDbT: public sqlpp::connection
 			std::cout << "Running remove call with\n" << context.str() << std::endl;
 			return 0;
 		}
+
+	template<typename Create>
+        void create( const Create &c)
+        {
+	        _serializer_context_t context;
+            ::sqlpp::serialize(c, context);
+            std::cout << "Running create call with\n" << context.str() << std::endl;
+        }
 
 	template<typename Select>
 		result_t select(const Select& x)

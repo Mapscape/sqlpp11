@@ -34,6 +34,7 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/result_field.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -43,6 +44,9 @@ namespace sqlpp
 		using _traits = make_traits<boolean, tag::is_value_type>;
 		using _tag = tag::is_boolean;
 		using _cpp_value_type = bool;
+
+		static constexpr const char _db_name[] =  "INTEGER";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_db_name), _db_name>;
 
 		template<typename T>
 			using _is_valid_operand = is_boolean_t<T>;
@@ -95,8 +99,8 @@ namespace sqlpp
 			}
 
 			bool is_null() const
-			{ 
-				return _is_null; 
+			{
+				return _is_null;
 			}
 
 			_cpp_value_type value() const
@@ -180,10 +184,10 @@ namespace sqlpp
 		}
 
 		bool is_null() const
-		{ 
+		{
 			if (not _is_valid)
 				throw exception("accessing is_null in non-existing row");
-			return _is_null; 
+			return _is_null;
 		}
 
 		bool _is_trivial() const

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,8 +37,8 @@ namespace sqlpp
 {
 	namespace database
 	{
-		// The context is not a requirement, but if the database requires 
-		// any deviations from the SQL standard, you should use your own 
+		// The context is not a requirement, but if the database requires
+		// any deviations from the SQL standard, you should use your own
 		// context in order to specialize the behaviour, see also interpreter.h
 		struct context_t
 		{
@@ -51,7 +51,7 @@ namespace sqlpp
 		class connection: public sqlpp::connection // this inheritance helps with ADL for dynamic_select, for instance
 		{
 		public:
-			using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t, 
+			using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t,
 								::sqlpp::tag::enforce_null_result_treatment // If that is what you really want, leave it out otherwise
 							>;
 
@@ -137,6 +137,10 @@ namespace sqlpp
 
 			//! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
 			void report_rollback_failure(const std::string message) noexcept;
+
+			//! create a table, index or view
+			template <typename Create>
+			void create( const Create &c);
 		};
 
 	}
