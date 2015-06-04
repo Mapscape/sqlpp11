@@ -35,6 +35,7 @@
 
 SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
+
 template< typename ColumnExpression>
 void TestAsColumn( ColumnExpression e)
 {
