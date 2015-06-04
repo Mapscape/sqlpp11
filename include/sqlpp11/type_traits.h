@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,6 +33,7 @@
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/get_first.h>
+#include <sqlpp11/wrap_operand_fwd.h>
 
 namespace sqlpp
 {
@@ -40,32 +41,78 @@ namespace sqlpp
 	{
 		struct can_be_null{};
 	}
+	namespace tag_values
+	{
+	    namespace
+	    {
+	        constexpr tag::can_be_null can_be_null{};
+	    }
+	}
+
 
 	namespace detail
 	{
-		template<typename T, typename Enable = void>
-		struct column_spec_can_be_null_impl { using type = std::false_type; };
-		template<typename T>
-		struct column_spec_can_be_null_impl<T, typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };
+        template<typename TagType, typename T, typename Enable = void>
+        struct has_tag_impl
+            : std::false_type { };
+
+        template<typename TagType, typename T>
+        struct has_tag_impl<TagType, T, typename std::enable_if<detail::is_element_of<TagType, typename T::_traits::_tags>::value>::type>
+            : std::true_type {};
+
+        template<typename T>
+		struct column_spec_can_be_null_impl : has_tag_impl< tag::can_be_null, T> {};
 	}
+
+	namespace tag
+	{
+	    template< typename T>
+	    struct has_default
+	    {
+	        T value;
+	    };
+
+        template< typename T>
+        struct is_default : std::false_type {};
+	    template< typename T>
+	    struct is_default< has_default<T>> : std::true_type {};
+	}
+
+	namespace tag_values
+	{
+	    namespace
+	    {
+            template< typename T>
+            constexpr tag::has_default<T> has_default( T default_value)
+            {
+                return {default_value};
+            }
+	    }
+	}
+
+	template< typename TagType, typename T>
+	using has_tag = typename detail::has_tag_impl< TagType, T>::type;
+
 	template<typename T>
-	using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
+	using column_spec_can_be_null_t = has_tag< tag::can_be_null, T>;
 
 #define SQLPP_VALUE_TRAIT_GENERATOR(name) \
 	namespace tag\
 	{\
 		struct name{};\
 	}\
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct name##_impl { using type = std::false_type; };\
-		template<typename T>\
-		struct name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
-	}\
+    namespace tag_values\
+    {\
+	    namespace\
+	    {\
+            constexpr tag::name name{};\
+	    }\
+    }\
 	template<typename T>\
-	using name##_t = typename detail::name##_impl<T>::type;
+	using name##_t = has_tag< tag::name, T>;
 
+	SQLPP_VALUE_TRAIT_GENERATOR(is_primary_key)
+	SQLPP_VALUE_TRAIT_GENERATOR(is_auto_increment)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_boolean)
@@ -73,8 +120,8 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point)
 	template<typename T>
 		using is_numeric_t = logic::any_t<
-		detail::is_element_of<tag::is_integral, typename T::_traits::_tags>::value,
-		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
+		has_tag<tag::is_integral, T>::value,
+		has_tag<tag::is_floating_point, T>::value>;
 
 	SQLPP_VALUE_TRAIT_GENERATOR(is_text)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value)
@@ -350,9 +397,9 @@ namespace sqlpp
 		};
 
 	template<typename Statement>
-		struct has_result_row_impl<Statement, 
+		struct has_result_row_impl<Statement,
 		typename std::enable_if<
-			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
 		void>::type>
 		{
 			using type = std::true_type;
@@ -368,9 +415,9 @@ namespace sqlpp
 		};
 
 	template<typename Statement>
-		struct get_result_row_impl<Statement, 
+		struct get_result_row_impl<Statement,
 		typename std::enable_if<
-			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
 		void>::type>
 		{
 			using type = typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>;
