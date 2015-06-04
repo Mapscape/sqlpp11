@@ -30,7 +30,6 @@ set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
 
 enable_testing()
 
-message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall ${CMAKE_CXX_FLAGS}")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -41,6 +40,13 @@ set(CMAKE_CXX_FLAGS "-Wconversion -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers "${include_dir}/*.h")
 include_directories("${include_dir}")
+
+SET( BOOST_RELEASE_DIR ${BOOST_RELEASE_ROOT}/${CV_HOSTTYPE})
+
+INCLUDE_DIRECTORIES( "${BOOST_RELEASE_DIR}/include")
+LINK_DIRECTORIES(    "${BOOST_RELEASE_DIR}/lib")
+
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
 add_subdirectory(${PROJECT_SOURCE_DIR}/test_constraints)
 # Mapscape specific alterations
