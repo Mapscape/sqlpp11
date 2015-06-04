@@ -50,7 +50,7 @@ namespace sqlpp {
 
     /**
      * Generator function for when_t.
-     * The make_when takes expressions and converts them to an operand type if needed, e.g. if an expression of
+     * make_when() takes expressions and converts them to an operand type if needed, e.g. if an expression of
      * type 'int' is given, it will be converted to an expression type.
      *
      */
@@ -193,10 +193,11 @@ namespace sqlpp {
          * The else_() member function is enabled only if no previous else-expression was specified.
          */
         template <typename NewElseExpression>
-        typename std::enable_if<
-            std::is_same< ElseExpression, no_value_t>::value,
-            case_t< CaseExpression, wrap_operand_t<NewElseExpression>, WhenTuple>
-        >::type else_( NewElseExpression else_expression)
+        auto else_( NewElseExpression else_expression)
+        -> typename std::enable_if<
+                std::is_same< ElseExpression, no_value_t>::value,
+                case_t< CaseExpression, wrap_operand_t<NewElseExpression>, WhenTuple>
+            >::type
         {
             return { _case, else_expression, _when};
         }
@@ -231,14 +232,18 @@ namespace sqlpp {
      * Create a CASE-expression.
      *
      * CASE expressions in SQL have the form:
+     * \code
      *     CASE [<expression>] [WHEN <w-expr> THEN <t-expr>]... [ELSE <e-expr>] END
+     * \endcode
      *
      * which is expressed through this function in the following form:
+     * \code
      *     case_( <expression>)
      *         .when( <w-expr>, <t-expr>)
      *         .when( <w-expr>, <t-expr>)
      *         .else_( <e-expr>)
      *         // etc...
+     * \endcode
      *
      * There is an overload of this function that takes no arguments. In that
      * case the <w-expr> expressions are expected to be of some boolean type.
@@ -315,8 +320,5 @@ namespace sqlpp {
     };
 
 }
-
-
-
 
 #endif /* _SQLPP_CASE_H_ */

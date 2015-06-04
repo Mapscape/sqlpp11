@@ -28,7 +28,7 @@
 
 /**
  * \brief definition of the if_null function.
- *
+ * \ingroup sqlpp11
  */
 
 #ifndef SQLPP_IF_NULL_H_
@@ -76,7 +76,7 @@ namespace sqlpp
 
         static Context& _(const T& t, Context& context)
         {
-            context << "IF_NULL(";
+            context << "IFNULL(";
             serialize_operand(t.left, context);
             context << ',';
             serialize_operand(t.right, context);
@@ -86,7 +86,10 @@ namespace sqlpp
     };
 
     /**
-     * usage: if_null( expression, alternative)
+     * usage:
+     * \code
+     *      if_null( expression, alternative)
+     * \endcode
      * The type of if_null is equal to the type of the second argument, while the default name is equal to that of the first argument.
      * The result value of this expression is whatever the underlying database returns if its IFNULL() function is used.
      */
