@@ -1,9 +1,10 @@
 
 macro (build_and_run arg)
 	# Add headers to sources to enable file browsing in IDEs
+	message( STATUS "binary dir = ${CMAKE_BINARY_DIR}")
 	include_directories("${CMAKE_BINARY_DIR}")
 	add_executable("${arg}" "${arg}.cpp" ${sqlpp_headers} "${CMAKE_CURRENT_LIST_DIR}/Sample.h")
-	add_test("${arg}" "${CMAKE_BINARY_DIR}/${arg}")
+	add_test("${arg}" "${arg}")
 endmacro ()
 
 build_and_run(BooleanExpressionTest)
@@ -20,6 +21,7 @@ build_and_run(Minimalistic)
 build_and_run(ResultTest)
 build_and_run(UnionTest)
 build_and_run(WithTest)
+build_and_run(CreateTableTest)
 
 # if you want to use the generator, you can do something like this:
 #find_package(PythonInterp REQUIRED)
