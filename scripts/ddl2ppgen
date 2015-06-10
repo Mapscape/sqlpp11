@@ -104,7 +104,8 @@ types = {
     'double': 'floating_point',
     'float': 'floating_point',
     'real': 'floating_point',
-    'number' : 'number'
+    'number' : 'number',
+    'unknown' : 'unknown'
     }
 
 # PROCESS DDL
@@ -135,9 +136,15 @@ for tableCreation in tableCreations:
     tableMember = toMemberName(sqlTableName)
     tableNamespace = tableClass + '_'
     tableTemplateParameters = tableClass
-    print('SQLPP_DECLARE_TABLE( ', file=header)
-    print('    (' + tableClass + '),', file=header)
+    if tableClass != sqlTableName:
+        print('SQLPP_DECLARE_TABLE_ALT( ', file=header)
+        print('    ' + tableClass, file=header)
+    else:
+        print('SQLPP_DECLARE_TABLE( ', file=header)
+    print('    (' + sqlTableName + '),', file=header)
 
+
+    # see if primary keys were specified.
     keys = []
     for column in tableCreation.create.columns:
         if column.isConstraint:
@@ -150,18 +157,18 @@ for tableCreation in tableCreations:
             continue
         sqlColumnName = column[0]
         columnMember = toMemberName(sqlColumnName)
-        sqlColumnType = column[1].lower()
+        sqlColumnType = column[1].lower() if len(column)>1 else "unknown"
         cppColumnType = types[sqlColumnType]
         requireInsert = True
         traitslist = [ ]
         if column.hasAutoValue:
-            traitslist.append( 'auto_increment');
+            traitslist.append( 'is_auto_increment');
         if column.notNull:
             traitslist.append( 'not_null');
         if column.defaultValue:
             traitslist.append( 'has_default(' + column.defaultValue[1] + ')')
         if column.primaryKey or sqlColumnName in keys:
-            traitslist.append( 'primary_key')
+            traitslist.append( 'is_primary_key')
 
         nameAndType = "{0:36}".format(
             "{0:22}".format( columnMember) + ', ' + cppColumnType
