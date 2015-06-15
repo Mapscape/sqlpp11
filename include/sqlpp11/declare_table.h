@@ -38,6 +38,7 @@
 
 #include <sqlpp11/table_spec.h>
 #include <sqlpp11/column_spec.h>
+#include <sqlpp11/type_traits.h>
 
 /**
  * Declare a table and its metadata.
@@ -52,6 +53,21 @@
  */
 #define SQLPP_DECLARE_TABLE( table_tuple, column_semi_seq)  \
     SQLPP_DECLARE_TABLE_IMPL(                               \
+        BOOST_PP_TUPLE_ELEM( 0, table_tuple),               \
+        BOOST_PP_TUPLE_ELEM( 0, table_tuple),               \
+        BOOST_PP_TUPLE_TO_SEQ( table_tuple),                \
+        SQLPP_WRAP_SEQUENCE( column_semi_seq)               \
+        )                                                   \
+        /**/
+
+/**
+ * This is a variant of SQLPP_DECLARE_TABLE that allows users to
+ * specify a C++ class name and a different SQL table name.
+ */
+#define SQLPP_DECLARE_TABLE_ALT( cpp_name, table_tuple, column_semi_seq)  \
+    SQLPP_DECLARE_TABLE_IMPL(                               \
+        cpp_name,                                           \
+        BOOST_PP_TUPLE_ELEM( 0, table_tuple),               \
         BOOST_PP_TUPLE_TO_SEQ( table_tuple),                \
         SQLPP_WRAP_SEQUENCE( column_semi_seq)               \
         )                                                   \
@@ -93,14 +109,14 @@
     column_seq_seq                                      \
     }                                                   \
 
-#define SQLPP_DECLARE_TABLE_IMPL( table_def_seq, column_seq)    \
+#define SQLPP_DECLARE_TABLE_IMPL( cpp_name, sql_name, table_def_seq, column_seq)    \
     SQLPP_COLUMN_DEF_SPEC(                                      \
-        BOOST_PP_SEQ_HEAD(table_def_seq),                       \
+        cpp_name,                                               \
         BOOST_PP_SEQ_FOR_EACH( SQLPP_COLUMN_DEF_TO_SPEC, _, column_seq)\
     );                                                          \
     SQLPP_TABLE_SPEC(                                           \
-        BOOST_PP_SEQ_HEAD(table_def_seq),                       \
-        BOOST_PP_SEQ_HEAD( table_def_seq),                      \
+        cpp_name,                                               \
+        sql_name,                                               \
         SQLPP_COLUMN_NAMES( column_seq)                         \
         )                                                       \
     /**/

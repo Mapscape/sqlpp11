@@ -29,6 +29,7 @@
 #include <sqlpp11/create_table.h>
 #include <sqlpp11/integral.h>
 #include <sqlpp11/text.h>
+#include <sqlpp11/select.h>
 #include <tuple>
 
 #include "MockDb.h"
@@ -63,60 +64,18 @@ auto operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
 
 
 
-//template< typename... ColumnTags>
-//void PrintTypes( const sqlpp::detail::type_set< ColumnTags...> &)
-//{
-//    std::cout << std::make_tuple( typeid( ColumnTags).name()...) << "\n";
-//    std::cout << std::make_tuple( std::is_same< sqlpp::tag::primary_key, ColumnTags>::value...) << "\n";
-//
-//
-//    //IsPrimaryKeyTag( secondtype{});
-//
-//    std::cout
-//        <<  std::is_same<
-//                secondtype,
-//                sqlpp::tag::primary_key
-//            >::value << "*\n";
-//
-//    std::cout << typeid( first_type_t< tail_type_t< sqlpp::detail::type_set<ColumnTags...>>>).name() << "&\n";
-//
-//    std::cout
-//        <<  sqlpp::detail::is_element_of<
-//                sqlpp::tag::primary_key,
-//                sqlpp::detail::type_set< ColumnTags...>
-//            >::value << "+\n";
-//}
 
 SQLPP_DECLARE_TABLE(
         (TestTable),
-        (int_primary_key, integer, is_primary_key, require_insert, is_auto_increment)
-        (int_with_default, integer, has_default(0))
-        (string_with_default, text, has_default(sqlpp::null))
+        (int_primary_key    , integer   , is_primary_key, require_insert, is_auto_increment)
+        (int_with_default   , integer   , has_default(0))
+        (string_with_default, text      , has_default(sqlpp::null))
 );
 
 SQLPP_DECLARE_TABLE(
-    (JvLayer),
-    (FromLink              , integer     )
-    (ChaFromNodeTp         , integer     )
-    (ChaFromTileId         , integer     )
-    (ChaFromIdInTile       , integer     )
-    (ChaFromIsBaseLink     , integer     )
-    (ChaFromDirection      , integer     )
-    (ChaFromOrdinalNr      , integer     )
-    (ToLink                , integer     )
-    (ChaToNodeTp           , integer     )
-    (ChaToTileId           , integer     )
-    (ChaToIdInTile         , integer     )
-    (ChaToIsBaseLink       , integer     )
-    (ChaToDirection        , integer     )
-    (ChaToOrdinalNr        , integer     )
-    (ImageId               , integer     )
-    (ImageType             , integer     )
-    (Ambience              , integer     )
-    (IntersectionViewId    , integer     )
-    (SeqNr                 , integer     )
-    (PathNr                , integer     )
-    (ISIId                 , integer     )
+    (TestTable2),
+    (int_primary_key2   , integer     , is_primary_key)
+    (int_plain_value    , integer     )
 );
 
 int main()
@@ -125,7 +84,21 @@ int main()
     MockDb db;
 
     TestTable t;
+    TestTable2 p;
 
+
+    // Construct a create table statement from a table definition
     db(create_table( t));
-}
 
+    // Construct a create table statement from the column definitions of a query.
+    // This requires us to give an additional name for the table.
+    auto query =
+            select( t.int_primary_key, t.string_with_default, p.int_plain_value)
+            .from(
+                t.join( p)
+                .on( t.int_with_default == p.int_primary_key2)
+            )
+            .where( true);
+    db(create_table( query, sqlpp::alias::a));
+
+}
