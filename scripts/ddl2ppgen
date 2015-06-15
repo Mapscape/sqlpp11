@@ -138,7 +138,7 @@ for tableCreation in tableCreations:
     tableTemplateParameters = tableClass
     if tableClass != sqlTableName:
         print('SQLPP_DECLARE_TABLE_ALT( ', file=header)
-        print('    ' + tableClass, file=header)
+        print('    ' + tableClass + ',', file=header)
     else:
         print('SQLPP_DECLARE_TABLE( ', file=header)
     print('    (' + sqlTableName + '),', file=header)

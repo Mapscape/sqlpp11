@@ -66,8 +66,8 @@
  */
 #define SQLPP_DECLARE_TABLE_ALT( cpp_name, table_tuple, column_semi_seq)  \
     SQLPP_DECLARE_TABLE_IMPL(                               \
-        cpp_name                                            \
-        BOOST_PP_TUPLE_ELEM( 0, table_tuple)                \
+        cpp_name,                                           \
+        BOOST_PP_TUPLE_ELEM( 0, table_tuple),               \
         BOOST_PP_TUPLE_TO_SEQ( table_tuple),                \
         SQLPP_WRAP_SEQUENCE( column_semi_seq)               \
         )                                                   \
